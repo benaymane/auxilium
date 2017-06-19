@@ -80,15 +80,65 @@
         <li><a href="moreinfo.php" class="button alt">Learn More</a></li>
       </ul>
     </div>
-  </section>
+  </section >
 
-  <span id="loginDIV" style="display: none;">
-    Hi: <input type ="text">
-    Bye: <input type="text">
+  <span align="center" id="loginDIV" style="display: none;">
+    <section >
+      <h3>Log In</h3>
+      <form align="center"method="post" action="#">
+        <div class="row uniform 50%">
+          <div class="6u 12u$(xsmall)">
+            <input type="email" name="email" id="demo-name" value="" placeholder="Email" />
+          </div><br><br>
+          <div class="6u$ 12u$(xsmall)">
+            <input type="password" name="password" id="demo-email" value="" placeholder="Password" />
+          </div><br><br>
+          <div class="12u$">
+            <ul class="actions">
+              <li><input type="submit" value="Log In" class="special" /></li>
+              <li><input type="submit" value="Cancel" /></li>
+            </ul>
+          </div>
+        </div>
+      </form>
+    </section>
   </span>
 
-  <span id="signupDIV" style="display: none;">
-    Signup: <input type="text">
+
+  </span>
+
+  <span align="center"id="signupDIV" style="display: none;">
+    <section>
+      <h3>Register</h3>
+      <form align="center"method="post" action="#"align="center">
+        <div class="row uniform 50%"  >
+          <div class="6u 12u$(xsmall)">
+            <input type="email" name="email" id="demo-name" value="" placeholder="Email" />
+          </div><br><br>
+          <div class="6u 12u$(xsmall)">
+            <input type="email" name="email2" id="demo-name" value="" placeholder="Retype Email" />
+          </div><br><br>
+          <div class="6u$ 12u$(xsmall)">
+            <input type="password" name="password" id="demo-email" value="" placeholder="Password" />
+          </div>
+          <div class="6u$ 12u$(xsmall)">
+            <input type="password" name="password2" id="demo-email" value="" placeholder="Retype Password" />
+          </div>
+          <div class="6u 12u$(xsmall)">
+            <input type="text" name="username" id="demo-name" value="" placeholder="Username" />
+          </div>
+          <div class="12u$">
+            <ul class="actions">
+              <li><input type="submit" value="Register" class="special" /></li>
+              <li><input type="submit" value="Cancel" /></li>
+            </ul>
+          </div>
+        </div>
+      </form>
+    </section>
+    </span>
+
+
   </span>
 
   <script>
