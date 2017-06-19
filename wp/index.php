@@ -47,7 +47,7 @@
       <h1>Auxilium: <span>Find help as a student<br />
       or help a student as a tutor</span></h1>
       <ul class="actions">
-        <?php session_start( ); ?>
+        <?php //session_start( ); ?>
         <?php if(session_status( ) == PHP_SESSION_ACTIVE) {
           ?>
         <li><a onclick="" href="logout.php" class="button alt">Sign Out</a></li>
@@ -77,7 +77,7 @@
         Want to know more how it works?
       </p>
       <ul class="actions">
-        <li><a href="#" class="button alt">Learn More</a></li>
+        <li><a href="moreinfo.php" class="button alt">Learn More</a></li>
       </ul>
     </div>
   </section>
