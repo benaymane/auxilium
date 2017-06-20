@@ -1,4 +1,9 @@
 <?php
+$DBusername = "root";
+$DBpassword = "";
+$DBserver = "localhost";
+$DBdb = "auxiliumDB";
+
 
 function showMenu( ) {
 ?>
@@ -9,7 +14,11 @@ function showMenu( ) {
     <nav id="nav">
       <a href="index.php">Home</a>
       <a href="posts.php">Posts</a>
-      <a href="moreinfo.php">Profile</a>
+      <?php
+        if( isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] == true ) {
+          echo "<a href='moreinfo.php'>Profile</a>"."<p><strong>You are logged in as: \"".$_SESSION["Email"]."\"</strong></p>";
+        }
+      ?>
     </nav>
   </div>
 </header>
@@ -17,4 +26,10 @@ function showMenu( ) {
 <?php
 }
 
+function test_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
 ?>
