@@ -11,19 +11,60 @@
 </head>
 <body>
   <?php 
-  if(isset($_GET["u"]) && $_GET["u"] == "t") {
-	$conn = mysqli_connect($DBserver, $DBusername, $DBpassword, $DBdb);
-  
-	if (!$conn)
-		die( "Connection failed: " . mysqli_connect_error( ) );
-	$_SESSION["Tutor"] = ($_GET["v"] == "t") ? 1 : 0;
-	$sql = "UPDATE Profile SET Tutor='". $_SESSION["Tutor"] ."' WHERE AccountID='". $_SESSION["UserID"] ."'";
+  $conn = mysqli_connect($DBserver, $DBusername, $DBpassword, $DBdb);
+    if (!$conn)
+        die( "Connection failed: " . mysqli_connect_error( ) );
 	
-	if (!mysqli_query($conn, $sql))
-		echo "Error updating record: " . mysqli_error($conn);
+	if(isset($_GET["u"]) && $_GET["u"] == "t") {
+		$_SESSION["Tutor"] = ($_GET["v"] == "t") ? 1 : 0;
+		$sql = "UPDATE Profile SET Tutor='". $_SESSION["Tutor"] ."' WHERE AccountID='". $_SESSION["UserID"] ."'";
+		
+		if (!mysqli_query($conn, $sql))
+			echo "Error updating record: " . mysqli_error($conn);
+	}
+  
+  //updating
+	
+	if ($_SERVER["REQUEST_METHOD"] == "POST") {
+		if( $_POST["type"] == "username" ) {
+			$username = test_input( $_POST["username"] );
+			$sql = "UPDATE Profile SET Username='". $username ."' WHERE AccountID='". $_SESSION["UserID"] ."'";
+			if(!mysqli_query($conn, $sql))
+				echo "Error updating record: " . mysqli_error($conn);
+			else {
+				$_SESSION["Username"] = $username;
+				echo "<script>alert('Congratulations, ". $username ."! Your username successfully changed!')</script>";
+			}
+		}
+		else if ( $_POST["type"] == "email" ) {
+			$email = test_input( $_POST["email"] );
+			if (mysqli_num_rows( mysqli_query($conn, "SELECT Email FROM Accounts WHERE Email='". $email ."'" ) ) > 0) { //to be improved
+				echo '<script>alert(\'The email address: \"'. $email .'\" is already in use \n\n Try another one!\')</script>';
+			} else {
+				$sql = "UPDATE Accounts SET Email='". $email ."' WHERE id='". $_SESSION["UserID"] ."'";
+				if(!mysqli_query($conn, $sql))
+					echo "Error updating record: " . mysqli_error($conn);
+				else {
+					$_SESSION["Email"] = $email;
+					echo "<script>alert('Congratulations, ". $_SESSION["Username"] ."! Your email successfully changed to \"". $email ."\"!')</script>";
 
-  }
-  ?>
+				}
+			}
+		}
+		else {
+			$password = test_input( $_POST["password"] );
+			$sql = "UPDATE Accounts SET Password='". $password ."' WHERE id='". $_SESSION["UserID"] ."'";
+				if(!mysqli_query($conn, $sql))
+					echo "Error updating record: " . mysqli_error($conn);
+				else
+					echo "<script>alert('Congratulations, ". $_SESSION["Username"] ."! Your password successfully changed!')</script>";
+		}
+	}
+	
+	
+    mysqli_close($conn);
+	
+	?>
   <?php showMenu( ); ?>
   
   <section id="banner" style="background-image: url('../style/images/image-ab.jpg');">
@@ -53,10 +94,11 @@
 				<sub><a onclick="showBox('UserModify', 'UserDisplay')">Change</a></br></sub></p> 
 			</section>
 			<section id="UserModify" style="display:none">
-				<form method="post" action"#">
+				<form name="UserUpdater" method="post" action"#" onsubmit="return validateUser()">
 					<div class="field">
-						<h6><?php //echo $usernameErr; ?></h6>
-						<input type="text" name="username" id="demo-name" value="<?php echo $_SESSION["Username"];?>" />
+						<h6 id="UsernameErr"></h6>
+						<input type="text" name="username" id="demo-name" value="<?php echo $_SESSION["Username"];?>"/>
+						<input type="hidden" name="type" value="username"/>
 					</div>
 					<ul class="actions">
 						<li><input type="submit" value="Update" class="special" /></li>
@@ -68,13 +110,14 @@
 			<h5 style="display:inline; color:#B22222;">Email:</h5>
 			<section id="EmailDisplay">
 				<p style="text-indent:5%;"><?php echo $_SESSION["Email"]; ?> 
-				<sub><a onclick="showBox('EmailModify', 'EmailDisplay')">  Change</a></br></sub></p>
+				<sub><a onclick="showBox('EmailModify', 'EmailDisplay')">Change</a></br></sub></p>
 			</section>
 			<section id="EmailModify" style="display:none">
-				<form method="post" action"#">
+				<form name="EmailUpdater" method="post" action"#" onsubmit="return validateEmail()">
 					<div class="field">
-						<h6><?php //echo $emailErr; ?></h6>
-						<input type="text" name="email" id="demo-email" value="<?php echo $_SESSION["Email"];?>" />
+						<h6 id="EmailErr"></h6>
+						<input type="email" name="email" id="demo-email" value="<?php echo $_SESSION["Email"];?>" />
+						<input type="hidden" name="type" value="email"/>
 					</div>
 					<ul class="actions">
 						<li><input type="submit" value="Update" class="special" /></li>
@@ -82,7 +125,25 @@
 					</ul>
 				</form>
 			</section>
-			<a href="#">Modify Password</a>
+			
+			<section id="PasswordModify" style="display:none">
+				<form name="PasswordUpdater" method="post" action"#" onsubmit="return validatePassword()">
+					<div class="field">
+						<h5 style="display:inline; color:#B22222;">New Password:</h5>
+						<h6 id="PasswordErr"></h6>
+						<input type="password" name="password" id="demo-email" />
+						
+						<h5 style="display:inline; color:#B22222;">Confirm New Password:</h5>
+						<input type="password" name="passwordConf" id="demo-email" placeholder="Password" minlength="6"/>
+						<input type="hidden" name="type" value="password"/>
+					</div>
+					<ul class="actions">
+						<li><input type="submit" value="Update" class="special" /></li>
+						<li><a onclick="showBox('PasswordDisplay', 'PasswordModify')" class="button">Cancel</a></li>
+					</ul>
+				</form>
+			</section>
+			<a onclick="showBox('PasswordModify', 'PasswordDisplay')" id="PasswordDisplay">Modify Password</a>
 			
 		</p>
 		
@@ -143,6 +204,7 @@
 	}
 	
 	function hideBox(box) {
+		if(!box) return;
 		document.getElementById(box).style.display = "none";
 	}
 	
@@ -152,6 +214,36 @@
 	
 	function sad() {
 		alert("Sad to see you go :(\nCome back any time!");
+	}
+	
+	function validateUser() {
+		var x = document.forms["UserUpdater"]["username"].value;
+		if(x=="") {
+			document.getElementById("UsernameErr").innerHTML="Username can't be empty!";
+			return false;
+		}
+	}
+	
+	function validateEmail() {
+		var x = document.forms["EmailUpdater"]["email"].value;
+		if(x=="") {
+			document.getElementById("EmailErr").innerHTML="Email can't be empty!";
+			return false;
+		}
+	}
+	
+	function validatePassword() {
+		var x = document.forms["PasswordUpdater"]["password"].value;
+		var y = document.forms["PasswordUpdater"]["passwordConf"].value;
+		
+		if(x=="" || y=="") {
+			document.getElementById("PasswordErr").innerHTML="Password can't be empty!";
+			return false;
+		}
+		else if ( x != y ) {
+			document.getElementById("PasswordErr").innerHTML="Passwords do no match!";
+			return false;
+		}
 	}
   </script>
 </body>
