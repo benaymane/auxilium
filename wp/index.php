@@ -35,20 +35,21 @@ session_start();
   //end of smooth scrolling.
   </script>
 
-  <?php include 'includes.php'; ?>
   <title> AuxiliumHub: Where you find help </title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <link rel="stylesheet" href="../style/assets/css/main.css"/>
+  <?php 
+	include 'includes.php'; 
+	preloads();
+  ?>
+  
 </head>
 <body>
   <?php
-    $sEmailErr = $sPassErr = $rEmailErr = $rEmailConfErr = $rPassErr =
+    $sEmailErr = $sPassErr = $rUsernameErr = $rEmailErr = $rEmailConfErr = $rPassErr =
     $rPassConfErr = "";
 
     $errDetection = false;
 
-    $sEmail = $rEmail = $sPassword = $rPassword = "";
+    $rUsername = $sEmail = $rEmail = $sPassword = $rPassword = "";
 
     $conn = mysqli_connect($DBserver, $DBusername, $DBpassword, $DBdb);
     if (!$conn)
@@ -83,7 +84,16 @@ session_start();
               $_SESSION["loggedin"] = true;
               $_SESSION["Email"] = $sEmail;
               $_SESSION["UserID"] = $result["id"];
-            }
+			  
+			  $sql = "SELECT * From Profile WHERE AccountID='". $_SESSION["UserID"] ."'";
+			  $result = mysqli_query($conn, $sql);
+			  //if(mysqli_num_rows( $result ) == 0)
+				  //echo "NOPE";
+			  $result = mysqli_fetch_assoc( $result );
+			  $_SESSION["Username"] = $result["Username"];
+			  $_SESSION["Summary"] = $result["Summary"];
+			  $_SESSION["Tutor"] = $result["Tutor"];
+			}
 
             else {
               $sPassErr = "Wrong redentials";
@@ -97,6 +107,12 @@ session_start();
         }
 
       } else {
+		if(empty( $_POST["username"] )) {
+			$rUsernameErr = "Missing display name";
+			$errDetection = true;
+		}
+		else
+			$rUsername = test_input( $_POST["username"] );
 
         if(empty( $_POST["email"] )) {
           $rEmailErr = "Missing email address";
@@ -142,7 +158,18 @@ session_start();
           if(!( mysqli_query($conn, $sql) )) {
             echo "Error: " . $sql . "<br>" . mysqli_error($conn);
           } else {
-            echo "<script>alert('Congratulations! Your signup was successful. Enjoy your time here!')</script>";
+			
+			$sql = "SELECT id From Accounts WHERE Email='". $rEmail ."'";
+            $id = mysqli_fetch_assoc(mysqli_query($conn, $sql));
+			
+			$sql = "INSERT INTO Profile (AccountID, Username) VALUES ('". $id["id"] ."', '". $rUsername ."')";
+			
+			if(!( mysqli_query($conn, $sql) )) {
+				echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+			} else {
+				echo "<script>alert('Congratulations! Your signup was successful. Enjoy your time here ". $rUsername ."!')</script>";
+			}
+			
           }
         }
 
@@ -165,7 +192,7 @@ session_start();
         <?php
         if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] == true) {
         ?>
-        <li><a onclick="alert('Thank you for visiting us, good luck!')" href="logout.php" class="button alt">Sign Out</a></li>
+        <li><a href="logout.php" class="button alt">Sign Out</a></li>
         <?php }
         else { ?>
         <li><a onclick="showForm('signin')" href="#signin" class="button alt">Login</a></li>
@@ -194,11 +221,12 @@ session_start();
       <ul class="actions">
         <li><a href="moreinfo.php" class="button alt">Learn More</a></li>
       </ul>
+      <hr>
     </div>
   </section >
 
   <section id="main" style="display: none">
-    <div class="inner">
+    <div id="mainIN"class="inner" style="display: none">
       <div class="row">
         <div class="6u 12u$(xsmall)" id="signin" style="display: none;">
           <div class="table-wrapper">
@@ -230,9 +258,13 @@ session_start();
           <table class ="alt">
             <tbody><tr><td>
               <h3>Register</h3>
-                <form method="post" action"index.php">
-                  <div class="field">
-                      <h6><?php echo $rEmailErr; ?></h6>
+                <form method="post" action="index.php">
+				  <div class="field">
+				    <h6><?php echo $rUsernameErr; ?></h6>
+					<input type="text" name="username" id="demo-name" value="<?php echo $rUsername; ?>" placeholder="Display Name" />
+				  </div>
+                  <div class="field">					
+                    <h6><?php echo $rEmailErr; ?></h6>
                     <input type="email" name="email" id="demo-name" value="<?php echo $rEmail; ?>" placeholder="Email" />
                   </div>
                   <div class="field">
@@ -253,7 +285,7 @@ session_start();
                       <li><input type="submit" value="Register" class="special" /></li>
                       <li><a onclick="showForm('register')" href="#banner" class="button">Cancel</a></li>
                     </ul>
-                  </div>
+				  </div>
                 </form>
             </td></tr></tbody>
           </table>
@@ -262,17 +294,37 @@ session_start();
     </div>
   </section>
 
+<?php showFooter(); //insert footfetish joke here?>
+  
   <script>
     function showForm(id) {
-      console.log(id);
-      document.getElementById("main").style.display = "block";
-
+      //console.log(id);
+      outerVisibility(true);
       var el = document.getElementById(id);
 
       if(el.style.display == "none")
-        el.style.display = "block";
+        el.style.display = "block";        
       else
         el.style.display = "none";
+      checkOuter();
+    }
+    
+    function outerVisibility(visibility) {      
+      var visibilityString = (visibility) ? "block" : "none";
+      document.getElementById("main").style.display = visibilityString;
+      document.getElementById("mainIN").style.display = visibilityString;
+    }
+    
+    
+    function checkOuter() {
+      if(isInnerHidden())
+        outerVisibility(false);
+    }
+    
+    function isInnerHidden() {
+      var loginStatus = document.getElementById("signin").style.display == "none";
+      var registerStatus = document.getElementById("register").style.display == "none";
+      return loginStatus && registerStatus;
     }
   </script>
   <?php

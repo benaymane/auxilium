@@ -1,13 +1,20 @@
 <html>
 <head>
-  <?php include 'includes.php'; ?>
   <title> AuxiliumHub: Where you find help </title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <link rel="stylesheet" href="../style/assets/css/main.css"/>
+  <?php
+	include 'includes.php'; 
+	preloads( );
+  ?>
 </head>
 <body>
   <?php showMenu( ); ?>
+  
+  <section id="banner">
+    <div class="inner">
+      <h1>Profile: <span>Edit your information as you please!</span></h1>
+    </div>
+  </section>
+  
   <h1>TBA</h1>
 </body>
 </html>
